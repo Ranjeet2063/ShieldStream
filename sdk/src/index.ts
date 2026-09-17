@@ -4,7 +4,7 @@ import * as crypto from "crypto";
 export const STREAM_SEED = Buffer.from("shield_stream");
 export const VAULT_SEED = Buffer.from("stream_vault");
 export const NULLIFIER_SEED = Buffer.from("nullifier");
-export const PROGRAM_ID = new PublicKey("Shield1111111111111111111111111111111111111");
+export const PROGRAM_ID = new PublicKey("xNXe3EYiaMguoxK8X5XR9dftp6vjSPp18yo3PoPR9NY");
 
 export interface StreamParams {
   streamId: bigint;

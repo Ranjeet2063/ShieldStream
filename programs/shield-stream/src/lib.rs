@@ -9,7 +9,7 @@ use errors::ShieldStreamError;
 use state::*;
 use verifier::ZkProofVerifier;
 
-declare_id!("Shield1111111111111111111111111111111111111");
+declare_id!("xNXe3EYiaMguoxK8X5XR9dftp6vjSPp18yo3PoPR9NY");
 
 #[program]
 pub mod shield_stream {
