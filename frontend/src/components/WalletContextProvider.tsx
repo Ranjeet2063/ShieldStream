@@ -30,11 +30,15 @@ export const WalletContextProvider: FC<Props> = ({ children }) => {
     []
   );
 
+  const AnyConnectionProvider = ConnectionProvider as any;
+  const AnyWalletProvider = WalletProvider as any;
+  const AnyWalletModalProvider = WalletModalProvider as any;
+
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
+    <AnyConnectionProvider endpoint={endpoint}>
+      <AnyWalletProvider wallets={wallets} autoConnect>
+        <AnyWalletModalProvider>{children}</AnyWalletModalProvider>
+      </AnyWalletProvider>
+    </AnyConnectionProvider>
   );
 };
