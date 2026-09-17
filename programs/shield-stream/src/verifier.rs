@@ -28,12 +28,12 @@ impl ZkProofVerifier {
         // PI[0]: rate_commitment
         // PI[1]: nullifier
         // PI[2]: claimed_amount encoded as field element
-        require_eq!(public_inputs[0], *rate_commitment, ShieldStreamError::MismatchedCommitment);
-        require_eq!(public_inputs[1], *nullifier, ShieldStreamError::MismatchedCommitment);
+        require!(public_inputs[0] == *rate_commitment, ShieldStreamError::MismatchedCommitment);
+        require!(public_inputs[1] == *nullifier, ShieldStreamError::MismatchedCommitment);
 
         let mut amount_bytes = [0u8; 32];
         amount_bytes[24..32].copy_from_slice(&claimed_amount.to_be_bytes());
-        require_eq!(public_inputs[2], amount_bytes, ShieldStreamError::InvalidZkProof);
+        require!(public_inputs[2] == amount_bytes, ShieldStreamError::InvalidZkProof);
 
         // Ensure proof byte length aligns with UltraHonk / Groth16 curve expectations
         if proof.len() < 128 {
