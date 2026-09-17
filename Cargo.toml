@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "programs/shield-stream",
+]
+resolver = "2"
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+opt-level = 3
+codegen-units = 1
