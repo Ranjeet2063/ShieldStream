@@ -6,6 +6,7 @@ import { StatsBanner } from "@/components/StatsBanner";
 import { StreamCard, StreamData } from "@/components/StreamCard";
 import { CreateStreamModal } from "@/components/CreateStreamModal";
 import { ZkProofModal } from "@/components/ZkProofModal";
+import { TesterSandbox } from "@/components/TesterSandbox";
 import {
   Shield,
   Plus,
@@ -128,6 +129,9 @@ export default function Home() {
 
         {/* Real-time Protocol Stats */}
         <StatsBanner />
+
+        {/* Judges & Testers Interactive Playground */}
+        <TesterSandbox onQuickStreamCreate={handleCreated} />
 
         {/* Active Streams Section */}
         <section className="mb-16">

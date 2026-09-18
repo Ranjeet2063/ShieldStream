@@ -30,3 +30,7 @@ circuits/proofs/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Heavy Media
+*.mp4
+video_assets/
