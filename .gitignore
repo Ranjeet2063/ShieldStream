@@ -34,3 +34,5 @@ Thumbs.db
 # Heavy Media
 *.mp4
 video_assets/
+.vercel
+.env*

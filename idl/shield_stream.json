@@ -1,0 +1,115 @@
+{
+  "version": "0.1.0",
+  "name": "shield_stream",
+  "instructions": [
+    {
+      "name": "initialize_stream",
+      "accounts": [
+        { "name": "stream", "isMut": true, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "mint", "isMut": false, "isSigner": false },
+        { "name": "sender", "isMut": true, "isSigner": true },
+        { "name": "recipient", "isMut": false, "isSigner": false },
+        { "name": "sender_token_account", "isMut": true, "isSigner": false },
+        { "name": "token_program", "isMut": false, "isSigner": false },
+        { "name": "system_program", "isMut": false, "isSigner": false },
+        { "name": "rent", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "stream_id", "type": "u64" },
+        { "name": "start_time", "type": "i64" },
+        { "name": "stop_time", "type": "i64" },
+        { "name": "initial_deposit", "type": "u64" },
+        { "name": "rate_commitment", "type": { "array": ["u8", 32] } },
+        { "name": "state_commitment", "type": { "array": ["u8", 32] } }
+      ]
+    },
+    {
+      "name": "deposit_confidential",
+      "accounts": [
+        { "name": "stream", "isMut": true, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "sender", "isMut": true, "isSigner": true },
+        { "name": "sender_token_account", "isMut": true, "isSigner": false },
+        { "name": "token_program", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "amount", "type": "u64" },
+        { "name": "new_state_commitment", "type": { "array": ["u8", 32] } }
+      ]
+    },
+    {
+      "name": "withdraw_confidential",
+      "accounts": [
+        { "name": "stream", "isMut": true, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "recipient", "isMut": true, "isSigner": true },
+        { "name": "recipient_token_account", "isMut": true, "isSigner": false },
+        { "name": "nullifier_record", "isMut": true, "isSigner": false },
+        { "name": "token_program", "isMut": false, "isSigner": false },
+        { "name": "system_program", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "claimed_amount", "type": "u64" },
+        { "name": "nullifier", "type": { "array": ["u8", 32] } },
+        { "name": "zk_proof", "type": "bytes" },
+        { "name": "public_inputs", "type": { "vec": { "array": ["u8", 32] } } }
+      ]
+    },
+    {
+      "name": "set_stream_status",
+      "accounts": [
+        { "name": "stream", "isMut": true, "isSigner": false },
+        { "name": "authority", "isMut": false, "isSigner": true }
+      ],
+      "args": [
+        { "name": "new_status", "type": "u8" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "StreamAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "sender", "type": "publicKey" },
+          { "name": "recipient", "type": "publicKey" },
+          { "name": "mint", "type": "publicKey" },
+          { "name": "vault", "type": "publicKey" },
+          { "name": "start_time", "type": "i64" },
+          { "name": "stop_time", "type": "i64" },
+          { "name": "rate_commitment", "type": { "array": ["u8", 32] } },
+          { "name": "current_commitment", "type": { "array": ["u8", 32] } },
+          { "name": "total_withdrawn", "type": "u64" },
+          { "name": "total_deposited", "type": "u64" },
+          { "name": "status", "type": "u8" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "NullifierRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nullifier", "type": { "array": ["u8", 32] } },
+          { "name": "spent_at", "type": "i64" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InvalidStartTime", "msg": "Stream start time must be in the future or within 300s window" },
+    { "code": 6001, "name": "InvalidEndTime", "msg": "Stream stop time must be strictly greater than start time" },
+    { "code": 6002, "name": "MathOverflow", "msg": "Arithmetic overflow occurred in streaming computation" },
+    { "code": 6003, "name": "StreamInactive", "msg": "Stream is not currently active" },
+    { "code": 6004, "name": "Unauthorized", "msg": "Caller does not have authorization to perform this operation" },
+    { "code": 6005, "name": "InvalidZkProof", "msg": "Zero-knowledge verification failed or proof parameters malformed" },
+    { "code": 6006, "name": "MismatchedCommitment", "msg": "Public input commitment does not match stream state commitment" },
+    { "code": 6007, "name": "NullifierAlreadySpent", "msg": "Nullifier has already been consumed: double-spend rejected" }
+  ],
+  "metadata": {
+    "address": "xNXe3EYiaMguoxK8X5XR9dftp6vjSPp18yo3PoPR9NY"
+  }
+}

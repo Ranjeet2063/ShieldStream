@@ -46,3 +46,125 @@ impl ZkProofVerifier {
         Ok(true)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_zk_proof_verification() {
+        let proof = vec![0x42u8; 128];
+        let rate_commitment = [1u8; 32];
+        let nullifier = [2u8; 32];
+        let claimed_amount: u64 = 1_000_000;
+        let mut amount_bytes = [0u8; 32];
+        amount_bytes[24..32].copy_from_slice(&claimed_amount.to_be_bytes());
+
+        let public_inputs = vec![rate_commitment, nullifier, amount_bytes];
+
+        let result = ZkProofVerifier::verify_withdrawal_proof(
+            &proof,
+            &public_inputs,
+            &rate_commitment,
+            &nullifier,
+            claimed_amount,
+            1710000000,
+        );
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), true);
+    }
+
+    #[test]
+    fn test_empty_zk_proof_fails() {
+        let proof = vec![];
+        let rate_commitment = [1u8; 32];
+        let nullifier = [2u8; 32];
+        let claimed_amount: u64 = 500;
+        let mut amount_bytes = [0u8; 32];
+        amount_bytes[24..32].copy_from_slice(&claimed_amount.to_be_bytes());
+        let public_inputs = vec![rate_commitment, nullifier, amount_bytes];
+
+        let result = ZkProofVerifier::verify_withdrawal_proof(
+            &proof,
+            &public_inputs,
+            &rate_commitment,
+            &nullifier,
+            claimed_amount,
+            1710000000,
+        );
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_short_zk_proof_fails() {
+        let proof = vec![0x01u8; 64]; // < 128 bytes
+        let rate_commitment = [1u8; 32];
+        let nullifier = [2u8; 32];
+        let claimed_amount: u64 = 500;
+        let mut amount_bytes = [0u8; 32];
+        amount_bytes[24..32].copy_from_slice(&claimed_amount.to_be_bytes());
+        let public_inputs = vec![rate_commitment, nullifier, amount_bytes];
+
+        let result = ZkProofVerifier::verify_withdrawal_proof(
+            &proof,
+            &public_inputs,
+            &rate_commitment,
+            &nullifier,
+            claimed_amount,
+            1710000000,
+        );
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_mismatched_commitment_fails() {
+        let proof = vec![0x42u8; 128];
+        let rate_commitment = [1u8; 32];
+        let fraudulent_commitment = [9u8; 32];
+        let nullifier = [2u8; 32];
+        let claimed_amount: u64 = 1_000_000;
+        let mut amount_bytes = [0u8; 32];
+        amount_bytes[24..32].copy_from_slice(&claimed_amount.to_be_bytes());
+
+        let public_inputs = vec![fraudulent_commitment, nullifier, amount_bytes];
+
+        let result = ZkProofVerifier::verify_withdrawal_proof(
+            &proof,
+            &public_inputs,
+            &rate_commitment,
+            &nullifier,
+            claimed_amount,
+            1710000000,
+        );
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_mismatched_amount_fails() {
+        let proof = vec![0x42u8; 128];
+        let rate_commitment = [1u8; 32];
+        let nullifier = [2u8; 32];
+        let claimed_amount: u64 = 1_000_000;
+        let different_amount: u64 = 2_000_000;
+        let mut amount_bytes = [0u8; 32];
+        amount_bytes[24..32].copy_from_slice(&different_amount.to_be_bytes());
+
+        let public_inputs = vec![rate_commitment, nullifier, amount_bytes];
+
+        let result = ZkProofVerifier::verify_withdrawal_proof(
+            &proof,
+            &public_inputs,
+            &rate_commitment,
+            &nullifier,
+            claimed_amount,
+            1710000000,
+        );
+
+        assert!(result.is_err());
+    }
+}
+
