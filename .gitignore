@@ -19,7 +19,6 @@ yarn.lock
 package-lock.json
 
 # Environment & local files
-.env
 .env*.local
 *.log
 
@@ -35,4 +34,4 @@ Thumbs.db
 *.mp4
 video_assets/
 .vercel
-.env*
+config.bat
