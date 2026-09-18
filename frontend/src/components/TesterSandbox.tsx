@@ -17,6 +17,7 @@ import {
   ArrowRight,
   ExternalLink,
 } from "lucide-react";
+import confetti from "canvas-confetti";
 import { StreamData } from "./StreamCard";
 
 interface TesterSandboxProps {
@@ -32,6 +33,8 @@ export const TesterSandbox: FC<TesterSandboxProps> = ({ onQuickStreamCreate }) =
   const [airdropMsg, setAirdropMsg] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [activeTab, setActiveTab] = useState<"sandbox" | "architecture" | "sdk">("sandbox");
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
+  const [createdStreamId, setCreatedStreamId] = useState<string | null>(null);
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
 
   // Fetch Devnet SOL balance when connected
   useEffect(() => {
@@ -78,26 +81,56 @@ export const TesterSandbox: FC<TesterSandboxProps> = ({ onQuickStreamCreate }) =
     }
   };
 
-  const handleQuickDemoStream = () => {
-    const randomId = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const mockRecipient = publicKey
-      ? publicKey.toBase58().substring(0, 4) + "..." + publicKey.toBase58().substring(publicKey.toBase58().length - 4)
-      : "DemoContributor.sol";
+  const handleQuickDemoStream = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setIsSimulating(true);
 
-    const newStream: StreamData = {
-      id: randomId,
-      sender: publicKey ? publicKey.toBase58().substring(0, 4) + "...DaoTreasury" : "AcmeCorp.sol",
-      recipient: mockRecipient,
-      totalAmount: 1000,
-      token: "USDC",
-      startTime: Date.now() - 3600 * 1000, // started 1h ago
-      endTime: Date.now() + 30 * 24 * 3600 * 1000, // 30 days
-      withdrawnAmount: 0,
-      commitment: "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
-      isPrivate: true,
-    };
+    setTimeout(() => {
+      const randomId = Math.random().toString(36).substring(2, 10).toUpperCase();
+      const mockRecipient = publicKey
+        ? publicKey.toBase58().substring(0, 4) + "..." + publicKey.toBase58().substring(publicKey.toBase58().length - 4)
+        : "DemoContributor.sol";
 
-    onQuickStreamCreate(newStream);
+      const newStream: StreamData = {
+        id: randomId,
+        sender: publicKey ? publicKey.toBase58().substring(0, 4) + "...DaoTreasury" : "AcmeCorp.sol",
+        recipient: mockRecipient,
+        totalAmount: 1000,
+        token: "USDC",
+        startTime: Date.now() - 3600 * 1000, // started 1h ago
+        endTime: Date.now() + 30 * 24 * 3600 * 1000, // 30 days
+        withdrawnAmount: 0,
+        commitment: "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
+        isPrivate: true,
+      };
+
+      onQuickStreamCreate(newStream);
+      setCreatedStreamId(randomId);
+      setIsSimulating(false);
+
+      try {
+        confetti({
+          particleCount: 75,
+          spread: 65,
+          origin: { y: 0.65 },
+        });
+      } catch (err) {
+        console.error("Confetti error:", err);
+      }
+
+      // Smooth scroll down to Active Streams
+      setTimeout(() => {
+        const activeSection = document.getElementById("active-streams");
+        if (activeSection) {
+          activeSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 150);
+
+      setTimeout(() => setCreatedStreamId(null), 10000);
+    }, 250);
   };
 
   const codeSnippet = `import { ShieldStreamClient } from "@shieldstream/sdk";
@@ -259,13 +292,32 @@ console.log("Stream active on Devnet:", streamId);`;
               </div>
             </div>
 
-            <button
-              onClick={handleQuickDemoStream}
-              className="w-full py-3 px-4 rounded-xl text-xs font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-[1.01] transition-all flex items-center justify-center space-x-2"
-            >
-              <Play className="w-4 h-4 fill-white" />
-              <span>Launch Instant Test Stream</span>
-            </button>
+            <div className="space-y-3 relative z-10">
+              {createdStreamId && (
+                <div className="p-3 rounded-xl text-xs flex items-center space-x-2 border bg-emerald-950/70 border-emerald-700 text-emerald-300 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <span>
+                    ✓ Stream <strong className="text-white font-mono">#{createdStreamId}</strong> launched! Scrolled to Active Streams.
+                  </span>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleQuickDemoStream}
+                disabled={isSimulating}
+                className="w-full py-3.5 px-4 rounded-xl text-xs font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 relative z-20"
+              >
+                <Play className="w-4 h-4 fill-white" />
+                <span>
+                  {isSimulating
+                    ? "Generating Poseidon Commitment..."
+                    : createdStreamId
+                    ? `✓ Stream #${createdStreamId} Active (Click to Add Another)`
+                    : "Launch Instant Test Stream"}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       )}

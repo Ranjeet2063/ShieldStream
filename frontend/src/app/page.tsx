@@ -134,7 +134,7 @@ export default function Home() {
         <TesterSandbox onQuickStreamCreate={handleCreated} />
 
         {/* Active Streams Section */}
-        <section className="mb-16">
+        <section id="active-streams" className="mb-16 scroll-mt-24">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h2 className="text-xl font-bold text-white flex items-center space-x-2">
